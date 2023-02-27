@@ -1,6 +1,6 @@
 import os
 from app import app, db, login_manager
-from flask import render_template, request, redirect, url_for, flash, session, abort
+from flask import render_template, request, redirect, send_from_directory, url_for, flash, session, abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
@@ -41,27 +41,36 @@ def upload():
 
     return render_template('upload.html', form=form)
 
+def get_uploaded_images():
+    root_dir = os.getcwd()
+    print(root_dir)
+    images = []
+    for sudirs, dirs, files in os.walk(root_dir + '/uploads'):
+        for file in files:
+            images.append(file)
+    images.pop(0)
+    return images
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    root_dir = os.getcwd()
+    return send_from_directory(os.path.join(root_dir, app.config['UPLOAD_FOLDER']), filename)
+
+@app.route('/files')
+@login_required
+def files():
+    uploads = get_uploaded_images()
+    return render_template(url_for('files.html'), uploads=uploads)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
-
-    # change this to actually validate the entire form submission
-    # and not just one field
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
 
-        user = db.session.execute(db.session(UserProfile).filter_by(username=username)).scalar()
+        user = db.session.execute(db.select(UserProfile).filter_by(username=username)).scalar()
         if user is not None and check_password_hash(user.password, password):
-
-        # Get the username and password values from the form.
-
-        # Using your model, query database for a user based on the username
-        # and password submitted. Remember you need to compare the password hash.
-        # You will need to import the appropriate function to do so.
-        # Then store the result of that query to a `user` variable so it can be
-        # passed to the login_user() method below.
 
         # Gets user id, load into session
             login_user(user)
