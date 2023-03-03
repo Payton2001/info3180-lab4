@@ -48,7 +48,7 @@ def get_uploaded_images():
     for sudirs, dirs, files in os.walk(root_dir + '/uploads'):
         for file in files:
             images.append(file)
-    #images.pop(0)
+    images.pop(0)
     return images
 
 @app.route('/uploads/<filename>')
@@ -89,7 +89,7 @@ def login():
 
 @app.route('/logout')
 @login_required
-def logout_user():
+def logout():
     logout_user()
     flash('You are successfully logged out')
     return redirect(url_for('home'))
