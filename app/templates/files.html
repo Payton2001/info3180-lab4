@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="image">
+    {% for image in uploads %}
+        <div>
+            <img src="{{ url_for('get_image', filename=image) }}" alt="Image Uploaded" class="pic">
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -37,7 +37,7 @@ def upload():
         # Get file data and save to your uploads folder
 
         flash('File Saved', 'success')
-        return redirect(url_for('home')) # Update this to redirect the user to a route that displays all uploaded image files
+        return redirect(url_for('files')) # Update this to redirect the user to a route that displays all uploaded image files
 
     return render_template('upload.html', form=form)
 
@@ -48,7 +48,7 @@ def get_uploaded_images():
     for sudirs, dirs, files in os.walk(root_dir + '/uploads'):
         for file in files:
             images.append(file)
-    images.pop(0)
+    #images.pop(0)
     return images
 
 @app.route('/uploads/<filename>')
@@ -60,10 +60,14 @@ def get_image(filename):
 @login_required
 def files():
     uploads = get_uploaded_images()
-    return render_template(url_for('files.html'), uploads=uploads)
+    return render_template('files.html', uploads=uploads)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+
+    if current_user.is_authenticated:
+        return redirect(url_for('files'))
+
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -82,6 +86,13 @@ def login():
             flash(f'User {username} was not logged in !!')
             return redirect(url_for('home'))
     return render_template("login.html", form=form)
+
+app.route('/logout')
+@login_required
+def logout_user():
+    logout_user()
+    flash('You are successfully logged out')
+    return redirect(url_for('home'))
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
